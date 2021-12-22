@@ -1,3 +1,8 @@
+import { FetchNotesAction, DeleteNoteAction } from "./notes";
+
 export enum ActionTypes {
-    fetchNotes
+    fetchNotes,
+    deleteNote
 }
+
+export type Action = FetchNotesAction | DeleteNoteAction;
