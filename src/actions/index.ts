@@ -2,10 +2,19 @@ import axios from 'axios';
 import { Dispatch } from 'redux';
 import { ActionTypes } from './types';
 
-export interface Note {
-    id: number,
+export interface Note {    
+    user_id: string,
+    timestamp: number,
+    cat: string,
+    content: string,
+    expires: number,
+    note_id: number,
     title: string,
-    completed: boolean
+    user_name: string    
+}
+
+interface Response {
+    Items: Note[]
 }
 
 export interface FetchNotesAction {
@@ -13,13 +22,13 @@ export interface FetchNotesAction {
     payload: Note[]
 }
 
-export const fetch = () => async (dispatch: Dispatch) => {
-    const url = 'localhost:3000/api/notes'
+export const fetchNotes = () => async (dispatch: Dispatch) => {
+    const url = 'http://localhost:3001/api/notes'
     
-    const { data } = await axios.get<Note[]>(url);
+    const { data } = await axios.get<Response>(url);
 
     dispatch<FetchNotesAction>({
         type: ActionTypes.fetchNotes,
-        payload: data
+        payload: data.Items
     })
 }
