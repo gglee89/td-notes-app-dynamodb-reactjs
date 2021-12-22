@@ -8,4 +8,4 @@ export const notesReducer = (state: Note[] = [], action: FetchNotesAction) => {
         default:
             return state;
     }
-} 
+}
