@@ -3,6 +3,9 @@ import { connect } from 'react-redux';
 import { Note, fetchNotes, deleteNote } from '../actions';
 import { StoreState } from '../reducers';
 
+// Components
+import Login from './login/Login';
+
 interface AppProps {
     notes: Note[];
     fetchNotes: Function;
@@ -48,6 +51,7 @@ class _App extends React.Component<AppProps, AppState> {
     render() {
         return (
             <div>
+                <Login />
                 <button onClick={this.onButtonClick}>Fetch Notes</button>
                 {this.state.fetching && 'LOADING...'}
                 {this.renderList()}
