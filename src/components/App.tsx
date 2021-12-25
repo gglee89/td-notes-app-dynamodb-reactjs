@@ -1,7 +1,8 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { Note, fetchNotes, deleteNote } from '../actions';
-import { StoreState } from '../reducers';
+import React from 'react'
+import { connect } from 'react-redux'
+import { GoogleApiProvider } from 'react-gapi'
+import { Note, fetchNotes, deleteNote } from '../actions'
+import { StoreState } from '../reducers'
 
 // Components
 import Login from './login/Login';
@@ -50,12 +51,13 @@ class _App extends React.Component<AppProps, AppState> {
 
     render() {
         return (
-            <div>
+            <GoogleApiProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ''}>
                 <Login />
-                <button onClick={this.onButtonClick}>Fetch Notes</button>
+                {/* <button onClick={this.onButtonClick}>Fetch Notes</button> */}
+                <p>{process.env.REACT_APP_GOOGLE_CLIENT_ID}</p>
                 {this.state.fetching && 'LOADING...'}
                 {this.renderList()}
-            </div>
+            </GoogleApiProvider>
         )
     }
 }
