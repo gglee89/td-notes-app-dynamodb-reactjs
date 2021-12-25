@@ -66,6 +66,7 @@ const Login = () => {
               label="Email Address"
               name="email"
               autoComplete="email"
+              type="text"
               autoFocus
             />
             <TextField
@@ -75,6 +76,7 @@ const Login = () => {
               id="password"
               label="Password"
               name="password"
+              type="password"
               autoComplete="current-password"
             />
             <FormControlLabel 
