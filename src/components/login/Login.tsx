@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Avatar,
   Box,
@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { LockOutlined as LockOutlinedIcon } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { loadGoogleScript } from '../../services/google/load';
 
 const Copyright = (props: any) => {
   return (
@@ -37,6 +38,10 @@ const Login = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
   };
+
+  useEffect(() => {
+    loadGoogleScript();
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -106,6 +111,7 @@ const Login = () => {
             </Grid>
           </Box>
         </Box>
+        <div id="google-signin"></div>
         <Copyright sx={{ mt: 8, mb: 4 }} />
       </Container>
     </ThemeProvider>
