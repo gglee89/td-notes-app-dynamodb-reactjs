@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { LockOutlined as LockOutlinedIcon } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { loadGoogleScript } from '../../services/google/load';
+import loadGoogleScript from '../../services/google/load';
 
 declare global {
   interface Window {
