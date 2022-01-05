@@ -1,6 +1,12 @@
 import { Note, Action, ActionTypes } from '../actions';
 
-export const notesReducer = (state: Note[] = [], action: Action) => {
+const notesReducer = (
+  state: Note[] = [],
+  action: Action = {
+    type: ActionTypes.fetchNotes | ActionTypes.deleteNote,
+    payload: [],
+  }
+) => {
   switch (action.type) {
     case ActionTypes.fetchNotes:
       return action.payload;
@@ -10,3 +16,5 @@ export const notesReducer = (state: Note[] = [], action: Action) => {
       return state;
   }
 };
+
+export default notesReducer;
