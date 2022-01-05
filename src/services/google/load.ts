@@ -1,4 +1,9 @@
-declare const window: any;
+declare global {
+  interface Window {
+    onGoogleScriptLoad: any;
+  }
+}
+
 export const loadGoogleScript = () => {
   // Loads the Google JavaScript library
   (function () {
