@@ -1,11 +1,11 @@
-import { Note } from '../../action-creators';
+import axios from 'axios';
 import AuthService from '../auth/auth.service';
 
 type RequestHeaderOptions = {
   headers?: any;
 };
 
-export class NotesApiService {
+export class ApiService {
   options: RequestHeaderOptions = {};
 
   constructor(private authService: AuthService) {
@@ -33,20 +33,8 @@ export class NotesApiService {
     }
   };
 
-  addNote = (item: Note) => {
+  postRequest = async (endpoint: string, reqBody: any) => {
     this.setOptions();
-    const endpoint = `${process.env.API_ROOT}/api/note`;
-  };
-
-  updateNote = (item: Note): void => {
-    this.setOptions();
-  };
-
-  deleteNote = (timestamp: number): void => {
-    this.setOptions();
-  };
-
-  getNotes = (start?: number): void => {
-    this.setOptions();
+    return axios.post(`${process.env.API_ROOT}${endpoint}`, reqBody, this.options);
   };
 }

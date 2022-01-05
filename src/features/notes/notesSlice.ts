@@ -1,4 +1,4 @@
-import { Note, Action, ActionTypes } from '../actions';
+import { Note, Action, ActionTypes } from '../../action-creators';
 
 const notesReducer = (
   state: Note[] = [],
