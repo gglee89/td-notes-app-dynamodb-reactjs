@@ -1,11 +1,6 @@
 import { combineReducers } from 'redux';
-import { notesReducer } from './notes';
-import { Note } from '../actions';
+import notesReducer from './notes';
 
-export interface StoreState {
-  notes: Note[];
-}
-
-export const reducers = combineReducers<StoreState>({
-  notes: notesReducer
+export const reducers = combineReducers({
+  notes: notesReducer,
 });

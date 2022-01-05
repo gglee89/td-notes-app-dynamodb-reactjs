@@ -23,7 +23,7 @@ declare global {
 }
 
 interface GoogleAuth {
-  signOut: Function;
+  signOut: any;
 }
 
 const Copyright = (props: any) => {
@@ -42,10 +42,10 @@ const Copyright = (props: any) => {
 const theme = createTheme();
 const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 const Login = () => {
-  const [gapi, setGapi] = useState(null);
   const [googleAuth, setGoogleAuth] = useState<GoogleAuth>({
     signOut: () => {},
   });
+  const [gapi, setGapi] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [status, setStatus] = useState('');
   const [name, setName] = useState('');
@@ -64,13 +64,13 @@ const Login = () => {
     setImageUrl(profile.getImageUrl());
   };
 
-  const onFailure = (status: any) => {
+  const onFailure = (error: any) => {
     setIsLoggedIn(false);
-    setStatus(status);
+    setStatus(error);
   };
 
-  const renderSigninButton = (_gapi: any) => {
-    _gapi.signin2.render('google-signin', {
+  const renderSigninButton = (gapiArg: any) => {
+    gapiArg.signin2.render('google-signin', {
       scope: 'profile email',
       width: 240,
       height: 50,
@@ -91,15 +91,14 @@ const Login = () => {
 
   useEffect(() => {
     window.onGoogleScriptLoad = () => {
-      const _gapi = window.gapi;
-      setGapi(_gapi);
-      _gapi.load('auth2', () => {
+      const WGapi = window.gapi;
+      WGapi.load('auth2', () => {
         (async () => {
-          const _googleAuth = await _gapi?.auth2?.init({
+          const GoogleAuth = await WGapi?.auth2?.init({
             client_id: googleClientId,
           });
-          setGoogleAuth(_googleAuth);
-          renderSigninButton(_gapi);
+          setGoogleAuth(GoogleAuth);
+          renderSigninButton(WGapi);
         })();
       });
     };
@@ -117,7 +116,8 @@ const Login = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-          }}>
+          }}
+        >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
@@ -134,7 +134,6 @@ const Login = () => {
               name="email"
               autoComplete="email"
               type="text"
-              autoFocus
             />
             <TextField
               margin="normal"

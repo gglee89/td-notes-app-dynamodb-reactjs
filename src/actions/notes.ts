@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Dispatch } from 'redux';
+import { type Dispatch } from 'redux';
 import { ActionTypes } from './types';
 
 export interface Note {
@@ -17,7 +17,9 @@ interface FetchNotesResponse {
   Items: Note[];
 }
 
-interface DeleteNoteResponse {}
+interface DeleteNoteResponse {
+  Items: Note[];
+}
 
 export interface FetchNotesAction {
   type: ActionTypes.fetchNotes;
@@ -36,7 +38,7 @@ export const fetchNotes = () => async (dispatch: Dispatch) => {
 
   dispatch<FetchNotesAction>({
     type: ActionTypes.fetchNotes,
-    payload: data.Items
+    payload: data.Items,
   });
 };
 
@@ -47,6 +49,6 @@ export const deleteNote = (timestamp: number) => async (dispatch: Dispatch) => {
 
   dispatch({
     type: ActionTypes.deleteNote,
-    payload: timestamp
+    payload: timestamp,
   });
 };
