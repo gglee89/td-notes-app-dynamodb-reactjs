@@ -1,7 +1,12 @@
 # About
 TD Notes App w/ DynamoDB and ReactJS-Typescript
 
+# How to bootstrap
 `npx create-react-app td-notes-app --template typescript`
+
+# How to setup ESLINT for Typescript
+https://flamingotiger.github.io/javascript/eslint-setup/
+
 
 # TypeScript
 | Item | Description |

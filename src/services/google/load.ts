@@ -4,7 +4,7 @@ declare global {
   }
 }
 
-export const loadGoogleScript = () => {
+const loadGoogleScript = () => {
   // Loads the Google JavaScript library
   (function () {
     const id = 'google-js';
@@ -22,3 +22,5 @@ export const loadGoogleScript = () => {
     firstJs.parentNode?.insertBefore(js, firstJs);
   })();
 };
+
+export default loadGoogleScript;
