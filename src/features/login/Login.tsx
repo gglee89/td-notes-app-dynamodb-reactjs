@@ -40,7 +40,6 @@ const Copyright = (props: any) => {
 };
 
 const theme = createTheme();
-const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 const Login = () => {
   const [googleAuth, setGoogleAuth] = useState<GoogleAuth>({
     signOut: () => {},
@@ -57,6 +56,7 @@ const Login = () => {
   };
 
   const onSuccess = (googleUser: any) => {
+    console.log('googleUser', googleUser);
     setIsLoggedIn(true);
     const profile = googleUser.getBasicProfile();
     setName(profile.getName());
@@ -65,6 +65,7 @@ const Login = () => {
   };
 
   const onFailure = (error: any) => {
+    console.log('error', error);
     setIsLoggedIn(false);
     setStatus(error);
   };
@@ -91,14 +92,16 @@ const Login = () => {
 
   useEffect(() => {
     window.onGoogleScriptLoad = () => {
-      const WGapi = window.gapi;
-      WGapi.load('auth2', () => {
+      const wGapi = window.gapi;
+      wGapi.load('auth2', () => {
         (async () => {
-          const GoogleAuth = await WGapi?.auth2?.init({
+          const wGoogleAuth = await wGapi?.auth2?.init({
             client_id: googleClientId,
           });
-          setGoogleAuth(GoogleAuth);
-          renderSigninButton(WGapi);
+          console.log('wGoogleAuth', wGoogleAuth);
+          console.log('wGapi', wGapi);
+          setGoogleAuth(wGoogleAuth);
+          renderSigninButton(wGapi);
         })();
       });
     };
