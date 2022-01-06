@@ -32,7 +32,13 @@ class ApiService {
 
   postRequest = async (endpoint: string, reqBody: any, withOptions = true) => {
     if (withOptions) this.setOptions();
-    return axios.post(`${process.env.API_ROOT}${endpoint}`, reqBody, this.options);
+    const { data } = await axios.post(`${process.env.REACT_APP_API_ROOT}${endpoint}`, reqBody, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.options.headers,
+      },
+    });
+    return data;
   };
 }
 

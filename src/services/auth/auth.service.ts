@@ -1,23 +1,5 @@
 import ApiService from '../api/api.service';
 
-declare global {
-  interface Window {
-    gapi?: any;
-  }
-}
-
-export const initializeAuth = async (googleClientId: string | undefined) => {
-  if (!googleClientId) {
-    throw Error("'googleClientId' is missing");
-  }
-  const wGapi = window.gapi;
-  await wGapi.load('auth2', async () => {
-    await wGapi?.auth2?.init({
-      client_id: googleClientId,
-    });
-  });
-};
-
 /**
  * @description Simply calls our rest api to
  *              check if our `id_token` is valid.
@@ -38,12 +20,12 @@ export const initializeAuth = async (googleClientId: string | undefined) => {
  */
 export const isLoggedIn = async () => {
   const idToken = localStorage.getItem('id_token');
-  if (!idToken) return Promise.reject("'id_token' missing");
-  const endpoint = `${process.env.API_ROOT}/api/tokensignin`;
+  if (!idToken) return Promise.reject();
+  const endpoint = '/api/tokensignin';
   const reqBody = { idToken };
   const apiService = new ApiService();
   try {
-    const response = await apiService.postRequest(endpoint, reqBody);
+    const response = await apiService.postRequest(endpoint, reqBody, false);
     return await Promise.resolve(response);
   } catch (error) {
     return await Promise.reject(error);
