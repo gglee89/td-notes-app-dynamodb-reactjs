@@ -14,7 +14,9 @@ const loadGoogleScript = () => {
     const firstJs = document.getElementsByTagName('script')[0];
 
     // Prevent script from loading twice
-    if (document.getElementById(id)) return;
+    if (document.getElementById(id)) {
+      return;
+    }
     const js = document.createElement('script');
     js.id = id;
     js.src = src;

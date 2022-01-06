@@ -1,9 +1,14 @@
-import { createAction, createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 
 interface User {
   name: string;
   email: string;
   imageUrl?: string;
+}
+
+interface AuthError {
+  message: string;
+  status: number;
 }
 
 export interface AuthState {
@@ -17,8 +22,9 @@ export const isLoggedIn = createAsyncThunk('auth/isLoggedIn', async (endpoint: s
   try {
     const response = await thunkAPI.extra.authService.isLoggedIn();
     return response;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error);
+  } catch (err) {
+    const error = err as AuthError;
+    return thunkAPI.rejectWithValue(error.message ?? error);
   }
 });
 
@@ -37,6 +43,7 @@ const authSlice = createSlice({
     ['authSuccess']: {
       reducer: (state: AuthState, action: PayloadAction<User>) => {
         state.loading = false;
+        state.isLoggedIn = true;
         state.user = action.payload;
       },
       prepare: (user: User) => ({ payload: user }),
@@ -44,6 +51,7 @@ const authSlice = createSlice({
     ['authFailure']: {
       reducer: (state: AuthState, action: PayloadAction<string>) => {
         state.loading = false;
+        state.isLoggedIn = false;
         state.error = action.payload;
       },
       prepare: (value: string) => ({ payload: value }),
@@ -55,10 +63,12 @@ const authSlice = createSlice({
     },
     [isLoggedIn.rejected.toString()]: (state: AuthState, action: PayloadAction) => {
       state.loading = false;
+      state.isLoggedIn = false;
       state.error = action.payload;
     },
     [isLoggedIn.fulfilled.toString()]: (state: AuthState, action: PayloadAction) => {
       state.loading = false;
+      state.isLoggedIn = true;
       state.user = action.payload;
     },
   },

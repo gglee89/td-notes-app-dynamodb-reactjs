@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Avatar,
   Box,
   Button,
+  CircularProgress,
   Checkbox,
   Container,
   CssBaseline,
@@ -14,6 +15,7 @@ import {
 } from '@mui/material';
 import { LockOutlined as LockOutlinedIcon } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+
 // OAuth 2.0
 import loadGoogleScript from '../../services/google/load';
 
@@ -22,6 +24,17 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 
 // Actions
 import { authLoading, authSuccess, authFailure } from '../auth/authSlice';
+
+// Interface
+declare global {
+  interface Window {
+    gapi?: any;
+  }
+}
+
+interface GoogleAuth {
+  signOut?: any;
+}
 
 const Copyright = (props: any) => {
   return (
@@ -39,17 +52,23 @@ const Copyright = (props: any) => {
 const theme = createTheme();
 
 const Login = () => {
-  const { isLoggedIn } = useAppSelector((state) => state.auth);
+  const [googleAuth, setGoogleAuth] = useState<GoogleAuth>();
+  const [gapi, setGapi] = useState();
+  const { loading, isLoggedIn } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const renderSigninButton = (gapiArg: any) => {
     gapiArg.signin2.render('google-signin', {
       scope: 'profile email',
       width: 240,
       height: 50,
-      longtitle: true,
+      longtitle: false,
       theme: 'dark',
-      onsuccess: (response: any) => {
+      onload: () => dispatch(authLoading()),
+      onsuccess: async (response: any) => {
         const profile = response.getBasicProfile();
+
+        localStorage.setItem('id_token', response.getAuthResponse().id_token);
+
         dispatch(
           authSuccess({
             name: profile.getName(),
@@ -63,8 +82,13 @@ const Login = () => {
       },
     });
   };
-  const logOut = async () => {
-    await window.gapi.signOut();
+  const logOut = () => {
+    (async () => {
+      if (googleAuth) {
+        await googleAuth.signOut();
+        renderSigninButton(gapi);
+      }
+    })();
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -72,20 +96,26 @@ const Login = () => {
   };
 
   useEffect(() => {
+    // window.gapi is available at this point
     window.onGoogleScriptLoad = () => {
       const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
       const wGapi = window.gapi;
+      setGapi(wGapi);
+
       wGapi.load('auth2', () => {
         (async () => {
-          await wGapi?.auth2?.init({
+          const wGoogleAuth = await wGapi?.auth2?.init({
             client_id: googleClientId,
           });
+          setGoogleAuth(wGoogleAuth);
           renderSigninButton(wGapi);
         })();
       });
     };
 
-    loadGoogleScript();
+    if (!isLoggedIn) {
+      loadGoogleScript();
+    }
   }, []);
 
   return (
@@ -145,7 +175,11 @@ const Login = () => {
             </Grid>
           </Box>
         </Box>
-        {!isLoggedIn && <div id="google-signin"></div>}
+        {!isLoggedIn && loading ? (
+          <CircularProgress size="small" />
+        ) : (
+          <Box id="google-signin" justifyContent="center" display="flex" mt={5}></Box>
+        )}
         <Copyright sx={{ mt: 8, mb: 4 }} />
       </Container>
     </ThemeProvider>
