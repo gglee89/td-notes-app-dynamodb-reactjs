@@ -1,3 +1,12 @@
+export const isLoggedIn = () => {
+  const idToken = localStorage.getItem('id_token');
+  return new Promise((resolve, reject) => {
+    if (!idToken) return reject();
+    const endpoint = `${process.env.API_ROOT}/api/tokensignin`;
+    const reqBody = { idToken };
+  });
+};
+
 /**
  * @description User authentication service
  */
@@ -39,12 +48,6 @@ export default class AuthService {
    */
   isLoggedIn = () => {
     // empty
-    // let idToken = localStorage.getItem('id_token');
-    // return new Promise((resolve, reject) => {
-    //     if (!idToken) return reject();
-    //     const endpoint = `${process.env.API_ROOT}/api/tokensignin`;
-    //     let reqBody = { idToken };
-    // });
   };
 
   /**
