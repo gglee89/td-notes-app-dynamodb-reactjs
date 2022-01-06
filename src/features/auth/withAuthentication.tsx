@@ -1,17 +1,18 @@
 import React, { useEffect } from 'react';
 import Login from '../login/Login';
-import { isLoggedIn } from './authSlice';
-import { useAppDispatch } from '../../app/hooks';
+import * as authReducer from './authSlice';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
 
 const withAuthentication = (WrappedComponent: React.ComponentType) => {
   const WithAuth = <T,>(props: T) => {
     const dispatch = useAppDispatch();
+    const { isLoggedIn } = useAppSelector((state) => state.auth);
 
     useEffect(() => {
-      dispatch(isLoggedIn(''));
+      dispatch(authReducer.isLoggedIn(''));
     }, []);
 
-    // if (!isLoggedIn) return <Login />;
+    if (!isLoggedIn) return <Login />;
     return <WrappedComponent {...props} />;
   };
   WithAuth.displayName = 'withAuthentication';

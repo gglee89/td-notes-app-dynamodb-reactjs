@@ -1,13 +1,10 @@
 import React from 'react';
 
 // Components
-import Login from './features/login/Login';
-import Notes from './features/notes/Notes';
+import User from './features/user/User';
 
-class App extends React.Component {
-  render() {
-    return <Notes />;
-  }
-}
+const App = () => {
+  return <User />;
+};
 
 export default App;

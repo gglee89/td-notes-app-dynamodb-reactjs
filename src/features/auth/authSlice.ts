@@ -1,5 +1,10 @@
-import { createSlice, createAsyncThunk, type PayloadAction, type SerializedError } from '@reduxjs/toolkit';
-import { AxiosError } from 'axios';
+import { createAction, createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+
+interface User {
+  name: string;
+  email: string;
+  imageUrl?: string;
+}
 
 export interface AuthState {
   isLoggedIn: boolean;
@@ -26,18 +31,39 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    [isLoggedIn.pending.toString()]: (state: AuthState) => {
+    ['authLoading']: (state: AuthState) => {
       state.loading = true;
     },
-    [isLoggedIn.fulfilled.toString()]: (state: AuthState, action: PayloadAction) => {
-      state.loading = false;
-      state.user = action.payload;
+    ['authSuccess']: {
+      reducer: (state: AuthState, action: PayloadAction<User>) => {
+        state.loading = false;
+        state.user = action.payload;
+      },
+      prepare: (user: User) => ({ payload: user }),
+    },
+    ['authFailure']: {
+      reducer: (state: AuthState, action: PayloadAction<string>) => {
+        state.loading = false;
+        state.error = action.payload;
+      },
+      prepare: (value: string) => ({ payload: value }),
+    },
+  },
+  extraReducers: {
+    [isLoggedIn.pending.toString()]: (state: AuthState) => {
+      state.loading = true;
     },
     [isLoggedIn.rejected.toString()]: (state: AuthState, action: PayloadAction) => {
       state.loading = false;
       state.error = action.payload;
     },
+    [isLoggedIn.fulfilled.toString()]: (state: AuthState, action: PayloadAction) => {
+      state.loading = false;
+      state.user = action.payload;
+    },
   },
 });
+
+export const { authLoading, authSuccess, authFailure } = authSlice.actions;
 
 export default authSlice.reducer;

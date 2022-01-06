@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Avatar,
   Box,
@@ -14,6 +14,14 @@ import {
 } from '@mui/material';
 import { LockOutlined as LockOutlinedIcon } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+// OAuth 2.0
+import loadGoogleScript from '../../services/google/load';
+
+// Features
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+
+// Actions
+import { authLoading, authSuccess, authFailure } from '../auth/authSlice';
 
 const Copyright = (props: any) => {
   return (
@@ -31,9 +39,54 @@ const Copyright = (props: any) => {
 const theme = createTheme();
 
 const Login = () => {
+  const { isLoggedIn } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+  const renderSigninButton = (gapiArg: any) => {
+    gapiArg.signin2.render('google-signin', {
+      scope: 'profile email',
+      width: 240,
+      height: 50,
+      longtitle: true,
+      theme: 'dark',
+      onsuccess: (response: any) => {
+        const profile = response.getBasicProfile();
+        dispatch(
+          authSuccess({
+            name: profile.getName(),
+            email: profile.getEmail(),
+            imageUrl: profile.getImageUrl(),
+          })
+        );
+      },
+      onfailure: (error: string) => {
+        dispatch(authFailure(error));
+      },
+    });
+  };
+  const logOut = async () => {
+    await window.gapi.signOut();
+  };
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
   };
+
+  useEffect(() => {
+    window.onGoogleScriptLoad = () => {
+      const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+      const wGapi = window.gapi;
+      wGapi.load('auth2', () => {
+        (async () => {
+          await wGapi?.auth2?.init({
+            client_id: googleClientId,
+          });
+          renderSigninButton(wGapi);
+        })();
+      });
+    };
+
+    loadGoogleScript();
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -92,7 +145,7 @@ const Login = () => {
             </Grid>
           </Box>
         </Box>
-        {/* {!isLoggedIn && <div id="google-signin"></div>} */}
+        {!isLoggedIn && <div id="google-signin"></div>}
         <Copyright sx={{ mt: 8, mb: 4 }} />
       </Container>
     </ThemeProvider>
