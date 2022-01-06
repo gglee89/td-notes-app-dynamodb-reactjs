@@ -6,10 +6,12 @@ declare global {
   }
 }
 
-export const initialize = () => {
+export const initializeAuth = async (googleClientId: string | undefined) => {
+  if (!googleClientId) {
+    throw Error("'googleClientId' is missing");
+  }
   const wGapi = window.gapi;
-  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-  wGapi.load('auth2', async () => {
+  await wGapi.load('auth2', async () => {
     await wGapi?.auth2?.init({
       client_id: googleClientId,
     });
