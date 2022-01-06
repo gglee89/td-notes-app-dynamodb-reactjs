@@ -1,8 +1,20 @@
 import { configureStore } from '@reduxjs/toolkit';
-import reducer from '../features';
+import rootReducer from '../features';
+
+// Services
+import * as services from '../services';
+
+// Middleware
+import logger from 'redux-logger';
 
 export const store = configureStore({
-  reducer,
+  reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      thunk: {
+        extraArgument: services,
+      },
+    }).concat(logger),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

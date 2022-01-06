@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Avatar,
   Box,
@@ -14,17 +14,6 @@ import {
 } from '@mui/material';
 import { LockOutlined as LockOutlinedIcon } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import loadGoogleScript from '../../services/google/load';
-
-declare global {
-  interface Window {
-    gapi: any;
-  }
-}
-
-interface GoogleAuth {
-  signOut: any;
-}
 
 const Copyright = (props: any) => {
   return (
@@ -40,74 +29,11 @@ const Copyright = (props: any) => {
 };
 
 const theme = createTheme();
-const Login = () => {
-  const [googleAuth, setGoogleAuth] = useState<GoogleAuth>({
-    signOut: () => {},
-  });
-  const [gapi, setGapi] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [status, setStatus] = useState('');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
 
+const Login = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
   };
-
-  const onSuccess = (googleUser: any) => {
-    console.log('googleUser', googleUser);
-    setIsLoggedIn(true);
-    const profile = googleUser.getBasicProfile();
-    setName(profile.getName());
-    setEmail(profile.getEmail());
-    setImageUrl(profile.getImageUrl());
-  };
-
-  const onFailure = (error: any) => {
-    console.log('error', error);
-    setIsLoggedIn(false);
-    setStatus(error);
-  };
-
-  const renderSigninButton = (gapiArg: any) => {
-    gapiArg.signin2.render('google-signin', {
-      scope: 'profile email',
-      width: 240,
-      height: 50,
-      longtitle: true,
-      theme: 'dark',
-      onsuccess: onSuccess,
-      onfailure: onFailure,
-    });
-  };
-
-  const logOut = () => {
-    (async () => {
-      await googleAuth.signOut();
-      setIsLoggedIn(false);
-      renderSigninButton(gapi);
-    })();
-  };
-
-  useEffect(() => {
-    window.onGoogleScriptLoad = () => {
-      const wGapi = window.gapi;
-      wGapi.load('auth2', () => {
-        (async () => {
-          const wGoogleAuth = await wGapi?.auth2?.init({
-            client_id: googleClientId,
-          });
-          console.log('wGoogleAuth', wGoogleAuth);
-          console.log('wGapi', wGapi);
-          setGoogleAuth(wGoogleAuth);
-          renderSigninButton(wGapi);
-        })();
-      });
-    };
-
-    loadGoogleScript();
-  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -166,7 +92,7 @@ const Login = () => {
             </Grid>
           </Box>
         </Box>
-        {!isLoggedIn && <div id="google-signin"></div>}
+        {/* {!isLoggedIn && <div id="google-signin"></div>} */}
         <Copyright sx={{ mt: 8, mb: 4 }} />
       </Container>
     </ThemeProvider>

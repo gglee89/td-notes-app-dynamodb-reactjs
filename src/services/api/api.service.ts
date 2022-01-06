@@ -2,10 +2,12 @@ import axios from 'axios';
 import AuthService from '../auth/auth.service';
 
 type RequestHeaderOptions = {
-  headers?: any;
+  headers?: {
+    Authorization?: string;
+  };
 };
 
-export class ApiService {
+class ApiService {
   options: RequestHeaderOptions = {};
 
   constructor(private authService: AuthService) {
@@ -33,8 +35,10 @@ export class ApiService {
     }
   };
 
-  postRequest = async (endpoint: string, reqBody: any) => {
-    this.setOptions();
+  postRequest = async (endpoint: string, reqBody: any, withOptions = true) => {
+    if (withOptions) this.setOptions();
     return axios.post(`${process.env.API_ROOT}${endpoint}`, reqBody, this.options);
   };
 }
+
+export default ApiService;
