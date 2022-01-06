@@ -1,23 +1,20 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, type PayloadAction, type SerializedError } from '@reduxjs/toolkit';
+import { AxiosError } from 'axios';
 
 export interface AuthState {
   isLoggedIn: boolean;
   loading: boolean;
-  error?: {
-    message: string;
-    status: number;
-  };
+  error?: any;
   user?: any;
 }
 
-export const isLoggedIn = createAsyncThunk('auth/isLoggedIn', (endpoint: string, thunkAPI) => {
-  console.log('in isLoggedIn');
-  return fetch(endpoint)
-    .then((response) => {
-      console.log('thunkAPI', thunkAPI);
-      return response.json();
-    })
-    .then((json) => json);
+export const isLoggedIn = createAsyncThunk('auth/isLoggedIn', async (endpoint: string, thunkAPI: any) => {
+  try {
+    const response = await thunkAPI.extra.authService.isLoggedIn();
+    return response;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error);
+  }
 });
 
 const initialState: AuthState = {
@@ -32,11 +29,11 @@ const authSlice = createSlice({
     [isLoggedIn.pending.toString()]: (state: AuthState) => {
       state.loading = true;
     },
-    [isLoggedIn.fulfilled.toString()]: (state, action) => {
+    [isLoggedIn.fulfilled.toString()]: (state: AuthState, action: PayloadAction) => {
       state.loading = false;
       state.user = action.payload;
     },
-    [isLoggedIn.rejected.toString()]: (state, action) => {
+    [isLoggedIn.rejected.toString()]: (state: AuthState, action: PayloadAction) => {
       state.loading = false;
       state.error = action.payload;
     },

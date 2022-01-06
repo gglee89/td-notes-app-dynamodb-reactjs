@@ -1,5 +1,4 @@
 import axios from 'axios';
-import AuthService from '../auth/auth.service';
 
 type RequestHeaderOptions = {
   headers?: {
@@ -8,11 +7,7 @@ type RequestHeaderOptions = {
 };
 
 class ApiService {
-  options: RequestHeaderOptions = {};
-
-  constructor(private authService: AuthService) {
-    this.setOptions();
-  }
+  private options: RequestHeaderOptions = {};
 
   /**
    * @description Get the `id_token` from the AuthService,
@@ -27,7 +22,7 @@ class ApiService {
    *              that requires Authentication.
    */
   setOptions = async () => {
-    const idToken = await this.authService.getIdToken();
+    const idToken = localStorage.getItem('id_token');
     if (idToken) {
       this.options.headers = {
         Authorization: idToken,

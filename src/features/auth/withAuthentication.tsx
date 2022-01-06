@@ -8,8 +8,7 @@ const withAuthentication = (WrappedComponent: React.ComponentType) => {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-      dispatch(isLoggedIn('https://jsonplaceholder.typicode.com/users/1'));
-      console.log('from authentication');
+      dispatch(isLoggedIn(''));
     }, []);
 
     // if (!isLoggedIn) return <Login />;
