@@ -1,5 +1,9 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 
+// Type
+import { OAuthService } from '../../services/auth/auth.service';
+
+// Interface
 interface User {
   name: string;
   email: string;
@@ -12,15 +16,39 @@ interface AuthError {
 }
 
 export interface AuthState {
+  auth?: any;
   isLoggedIn: boolean;
   loading: boolean;
   error?: any;
   user?: any;
 }
 
+export const initializeOAuthService = createAsyncThunk(
+  'auth/initializeOAuthService',
+  async (oauthService: OAuthService, thunkAPI: any) => {
+    try {
+      await thunkAPI.extra.authService.initializeOAuthService(oauthService);
+      return await Promise.resolve();
+    } catch (err) {
+      const error = err as AuthError;
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const isLoggedIn = createAsyncThunk('auth/isLoggedIn', async (endpoint: string, thunkAPI: any) => {
   try {
     const response = await thunkAPI.extra.authService.isLoggedIn();
+    return response;
+  } catch (err) {
+    const error = err as AuthError;
+    return thunkAPI.rejectWithValue(error);
+  }
+});
+
+export const logout = createAsyncThunk('auth/logout', async (endpoint: string, thunkAPI: any) => {
+  try {
+    const response = await thunkAPI.extra.authService.logout();
     return response;
   } catch (err) {
     const error = err as AuthError;
@@ -57,20 +85,35 @@ const authSlice = createSlice({
       prepare: (value: string) => ({ payload: value }),
     },
   },
-  extraReducers: {
-    [isLoggedIn.pending.toString()]: (state: AuthState) => {
+  extraReducers: (builder) => {
+    builder.addCase(initializeOAuthService.fulfilled, (state, action) => {
+      state.auth = action.payload;
+    });
+    builder.addCase(isLoggedIn.pending, (state) => {
       state.loading = true;
-    },
-    [isLoggedIn.rejected.toString()]: (state: AuthState, action: PayloadAction) => {
+    });
+    builder.addCase(isLoggedIn.rejected, (state, action) => {
       state.loading = false;
       state.isLoggedIn = false;
       state.error = action.payload;
-    },
-    [isLoggedIn.fulfilled.toString()]: (state: AuthState, action: PayloadAction) => {
+    });
+    builder.addCase(isLoggedIn.fulfilled, (state, action) => {
       state.loading = false;
       state.isLoggedIn = true;
       state.user = action.payload;
-    },
+    });
+    builder.addCase(logout.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(logout.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    });
+    builder.addCase(logout.fulfilled, (state) => {
+      state.loading = false;
+      state.isLoggedIn = false;
+      delete state.user;
+    });
   },
 });
 

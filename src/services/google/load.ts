@@ -21,6 +21,7 @@ const loadGoogleScript = () => {
     js.id = id;
     js.src = src;
     js.onload = window.onGoogleScriptLoad;
+
     firstJs.parentNode?.insertBefore(js, firstJs);
   })();
 };

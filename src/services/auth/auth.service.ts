@@ -1,4 +1,30 @@
 import ApiService from '../api/api.service';
+import loadGoogleScript from '../google/load';
+
+export type OAuthService = 'google' | '23andme';
+
+export const initializeOAuthService = async (oauthService: OAuthService) => {
+  return new Promise((resolve, reject) => {
+    window.onGoogleScriptLoad = () => {
+      const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+      const wGapi = window.gapi;
+
+      wGapi.load('auth2', () => {
+        (async () => {
+          const googleAuth = await wGapi?.auth2?.init({
+            client_id: googleClientId,
+          });
+          if (!googleAuth) {
+            return reject("'googleAuth' is undefined");
+          }
+          return resolve(wGapi);
+        })();
+      });
+    };
+
+    loadGoogleScript();
+  });
+};
 
 /**
  * @description Simply calls our rest api to
@@ -33,37 +59,17 @@ export const isLoggedIn = async () => {
 };
 
 /**
- * @description User authentication service
+ * @description Whenever the user logs out, we delete
+ *              their `user_id` token into the localStorage.
  */
-// export default class AuthService {
-//   /**
-//    * @description Whenever the user logs in, we store
-//    *              their `user_id` token into the localStorage.
-//    *              This token is provided by the OAuth service
-//    *              when we authenticate successfully.
-//    */
-//   login = async () => {
-//     const wGapi = window.gapi;
-//     const googleAuth = await wGapi.auth2.getAuthInstance();
-//     const googleUser = await googleAuth.signIn({ scope: 'profile email' });
+export const logout = async () => {
+  const wGapi = window.gapi;
+  const googleAuth = wGapi.auth2.getAuthInstance();
 
-//     localStorage.setItem('id_token', googleUser.getAuthResponse().id_token);
-//   };
-
-//   /**
-//    * @description Whenever the user logs out, we delete
-//    *              their `user_id` token into the localStorage.
-//    */
-//   logout = async () => {
-//     const wGapi = window.gapi;
-//     const googleAuth = wGapi.auth2.getAuthInstance();
-
-//     try {
-//       await googleAuth.signOut();
-//       localStorage.removeItem('id_token');
-//     } catch (error) {
-//       // empty
-//       console.log('ERROR logout', error);
-//     }
-//   };
-// }
+  try {
+    await googleAuth.signOut();
+    localStorage.removeItem('id_token');
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};

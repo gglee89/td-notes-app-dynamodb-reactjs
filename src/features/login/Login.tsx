@@ -14,7 +14,6 @@ import {
   Typography,
 } from '@mui/material';
 import { LockOutlined as LockOutlinedIcon } from '@mui/icons-material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 // OAuth 2.0
 import loadGoogleScript from '../../services/google/load';
@@ -24,6 +23,9 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 
 // Actions
 import { authLoading, authSuccess, authFailure } from '../auth/authSlice';
+
+// HOC
+import withAuthentication from '../auth/withAuthentication';
 
 // Interface
 declare global {
@@ -49,13 +51,10 @@ const Copyright = (props: any) => {
   );
 };
 
-const theme = createTheme();
-
-const Login = () => {
-  const [googleAuth, setGoogleAuth] = useState<GoogleAuth>();
-  const [gapi, setGapi] = useState();
+const Login: React.FC = () => {
   const { loading, isLoggedIn } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
+  const wGapi = window.gapi;
   const renderSigninButton = (gapiArg: any) => {
     gapiArg.signin2.render('google-signin', {
       scope: 'profile email',
@@ -66,9 +65,7 @@ const Login = () => {
       onload: () => dispatch(authLoading()),
       onsuccess: async (response: any) => {
         const profile = response.getBasicProfile();
-
         localStorage.setItem('id_token', response.getAuthResponse().id_token);
-
         dispatch(
           authSuccess({
             name: profile.getName(),
@@ -82,108 +79,79 @@ const Login = () => {
       },
     });
   };
-  const logOut = () => {
-    (async () => {
-      if (googleAuth) {
-        await googleAuth.signOut();
-        renderSigninButton(gapi);
-      }
-    })();
-  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
   };
 
   useEffect(() => {
-    // window.gapi is available at this point
-    window.onGoogleScriptLoad = () => {
-      const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-      const wGapi = window.gapi;
-      setGapi(wGapi);
-
-      wGapi.load('auth2', () => {
-        (async () => {
-          const wGoogleAuth = await wGapi?.auth2?.init({
-            client_id: googleClientId,
-          });
-          setGoogleAuth(wGoogleAuth);
-          renderSigninButton(wGapi);
-        })();
-      });
-    };
-
-    if (!isLoggedIn) {
-      loadGoogleScript();
-    }
-  }, []);
+    if (wGapi) renderSigninButton(wGapi);
+  }, [wGapi]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              type="text"
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="password"
-              label="Password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-            />
-            <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
-            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Sign in
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
+            name="email"
+            autoComplete="email"
+            type="text"
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="password"
+            label="Password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+          />
+          <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
+          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+            Sign In
+          </Button>
+          <Grid container>
+            <Grid item xs>
+              <Link href="#" variant="body2">
+                Forgot password?
+              </Link>
             </Grid>
-          </Box>
+            <Grid item>
+              <Link href="#" variant="body2">
+                {"Don't have an account? Sign Up"}
+              </Link>
+            </Grid>
+          </Grid>
         </Box>
-        {!isLoggedIn && loading ? (
-          <CircularProgress size="small" />
-        ) : (
-          <Box id="google-signin" justifyContent="center" display="flex" mt={5}></Box>
-        )}
-        <Copyright sx={{ mt: 8, mb: 4 }} />
-      </Container>
-    </ThemeProvider>
+      </Box>
+      {!isLoggedIn && loading ? (
+        <CircularProgress size="small" />
+      ) : (
+        <Box id="google-signin" justifyContent="center" display="flex" mt={5}></Box>
+      )}
+      <Copyright sx={{ mt: 8, mb: 4 }} />
+    </Container>
   );
 };
 
-export default Login;
+export default withAuthentication(Login);
